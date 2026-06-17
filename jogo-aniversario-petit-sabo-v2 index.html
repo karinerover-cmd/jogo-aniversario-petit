@@ -1,0 +1,484 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Jogo de Aniversário · Petit Sabó</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,500;0,600;1,500&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #FBF3EF;
+    --bg-card: #FFFFFF;
+    --rose: #D8A1A8;
+    --rose-deep: #B97D86;
+    --rose-pale: #F3DCDC;
+    --gold: #C9A368;
+    --gold-pale: #EFE3CC;
+    --ink: #2F7166;
+    --ink-soft: #6B958C;
+    --line: #EADFDA;
+    --empty: #E8DCD6;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: var(--bg);
+    color: var(--ink);
+    font-family: 'Inter', sans-serif;
+    min-height: 100vh;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  .wrap {
+    max-width: 760px;
+    margin: 0 auto;
+    padding: 48px 20px 80px;
+  }
+
+  .hero { text-align: center; margin-bottom: 32px; }
+
+  .hero-eyebrow {
+    font-size: 12px;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--rose-deep);
+    font-weight: 600;
+    margin-bottom: 14px;
+  }
+
+  .hero h1 {
+    font-family: 'Playfair Display', serif;
+    font-weight: 600;
+    font-size: 38px;
+    line-height: 1.15;
+    color: var(--ink);
+    margin-bottom: 10px;
+  }
+
+  .hero h1 em { font-style: italic; color: var(--rose-deep); }
+
+  .hero p {
+    font-size: 14.5px;
+    color: var(--ink-soft);
+    max-width: 420px;
+    margin: 0 auto;
+    line-height: 1.55;
+  }
+
+  .countdown {
+    margin-top: 22px;
+    display: inline-flex;
+    gap: 10px;
+    background: var(--bg-card);
+    border: 1px solid var(--line);
+    border-radius: 100px;
+    padding: 8px 18px;
+    font-size: 13px;
+    color: var(--ink-soft);
+  }
+
+  .last-update {
+    margin-top: 10px;
+    font-size: 11px;
+    color: var(--ink-soft);
+    opacity: 0.8;
+  }
+
+  .search-row { margin-bottom: 24px; }
+
+  .search-row input {
+    width: 100%;
+    padding: 13px 18px;
+    border-radius: 14px;
+    border: 1px solid var(--line);
+    background: var(--bg-card);
+    font-family: 'Inter', sans-serif;
+    font-size: 14px;
+    color: var(--ink);
+    outline: none;
+    transition: border-color .2s ease;
+  }
+
+  .search-row input:focus { border-color: var(--rose); }
+  .search-row input::placeholder { color: #C4B5AE; }
+
+  .legend {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 14px;
+    justify-content: center;
+    margin-bottom: 30px;
+    font-size: 12px;
+    color: var(--ink-soft);
+  }
+
+  .legend-item { display: flex; align-items: center; gap: 6px; }
+  .legend-dot {
+    width: 18px; height: 18px;
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 11px;
+    flex-shrink: 0;
+    background: var(--rose-pale);
+    color: var(--rose-deep);
+  }
+
+  .card-list { display: flex; flex-direction: column; gap: 14px; }
+
+  .lover-card {
+    background: var(--bg-card);
+    border-radius: 20px;
+    padding: 20px 22px;
+    border: 1px solid var(--line);
+    position: relative;
+  }
+
+  .lover-card.completed {
+    border-color: var(--gold);
+    box-shadow: 0 4px 24px -8px rgba(201,163,104,0.35);
+  }
+
+  .lover-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 14px;
+    gap: 12px;
+  }
+
+  .lover-name {
+    font-family: 'Playfair Display', serif;
+    font-size: 19px;
+    font-weight: 600;
+    color: var(--ink);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .lover-badges { display: flex; gap: 6px; flex-wrap: wrap; justify-content: flex-end; }
+
+  .badge-pill {
+    font-size: 10.5px;
+    font-weight: 600;
+    padding: 4px 10px;
+    border-radius: 100px;
+    white-space: nowrap;
+  }
+
+  .badge-madrinha { background: var(--rose-pale); color: var(--rose-deep); }
+  .badge-honra { background: var(--gold-pale); color: #8A6D2F; }
+  .badge-completa { background: #E3EFE0; color: #4D7A45; }
+
+  .stamps-row { display: flex; gap: 8px; margin-bottom: 12px; flex-wrap: wrap; }
+
+  .stamp {
+    width: 42px;
+    height: 42px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 18px;
+    border: 2px dashed var(--empty);
+    background: transparent;
+    color: var(--empty);
+    flex-shrink: 0;
+    transition: all .25s ease;
+  }
+
+  .stamp.earned {
+    border-style: solid;
+    border-color: var(--rose);
+    background: var(--rose-pale);
+    color: var(--rose-deep);
+    transform: scale(1.04);
+  }
+
+  .stamp.earned.bonus {
+    border-color: var(--gold);
+    background: var(--gold-pale);
+    color: #8A6D2F;
+  }
+
+  .progress-track {
+    height: 6px;
+    background: var(--empty);
+    border-radius: 100px;
+    overflow: hidden;
+    margin-bottom: 8px;
+  }
+
+  .progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--rose), var(--gold));
+    border-radius: 100px;
+    transition: width .4s ease;
+  }
+
+  .progress-label {
+    font-size: 12px;
+    color: var(--ink-soft);
+    display: flex;
+    justify-content: space-between;
+  }
+
+  .progress-label .next { color: var(--rose-deep); font-weight: 600; }
+
+  .prize-banner {
+    margin-top: 14px;
+    padding: 12px 14px;
+    background: linear-gradient(135deg, var(--gold-pale), var(--rose-pale));
+    border-radius: 12px;
+    font-size: 12.5px;
+    color: #6B5638;
+  }
+
+  .empty-state, .error-state {
+    text-align: center;
+    padding: 60px 20px;
+    color: var(--ink-soft);
+  }
+
+  .empty-state .icon, .error-state .icon { font-size: 32px; margin-bottom: 12px; }
+
+  .error-state { color: #B97D86; }
+
+  .footer-note {
+    text-align: center;
+    margin-top: 40px;
+    font-size: 12px;
+    color: var(--ink-soft);
+    line-height: 1.6;
+  }
+
+  .crown { font-size: 15px; }
+
+  @media (max-width: 480px) {
+    .hero h1 { font-size: 30px; }
+    .stamp { width: 38px; height: 38px; font-size: 16px; }
+    .lover-name { font-size: 17px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="wrap">
+
+  <div class="hero">
+    <div class="hero-eyebrow">Petit Lovers · 7 Anos de Petit Sabó</div>
+    <h1>7 selos, <em>7 anos</em><br>de Petit Sabó</h1>
+    <p>Em julho a Petit Sabó completa 7 anos! Complete sua cartela de 7 selos ao longo do mês e desbloqueie presentes especiais de aniversário.</p>
+    <div class="countdown" id="countdown">🎂 Aniversário em 19/07 · Jogo fecha em 31/07</div>
+    <div class="last-update" id="lastUpdate"></div>
+  </div>
+
+  <div class="search-row">
+    <input type="text" id="searchInput" placeholder="Buscar pelo seu nome...">
+  </div>
+
+  <div class="legend">
+    <div class="legend-item"><div class="legend-dot">💌</div> Indicação</div>
+    <div class="legend-item"><div class="legend-dot">🎀</div> Frete grátis</div>
+    <div class="legend-item"><div class="legend-dot">🎁</div> Brinde</div>
+    <div class="legend-item" style="color:#8A6D2F;"><div class="legend-dot" style="background:var(--gold-pale);color:#8A6D2F;">🎂</div> Aniversário</div>
+    <div class="legend-item"><div class="legend-dot">✨</div> HP</div>
+    <div class="legend-item"><div class="legend-dot">🌍</div> Wanderlust</div>
+    <div class="legend-item"><div class="legend-dot">📸</div> Stories</div>
+  </div>
+
+  <div class="card-list" id="publicList"></div>
+
+  <div class="empty-state" id="publicEmpty" style="display:none;">
+    <div class="icon">🌸</div>
+    <div>Ninguém por aqui ainda. As cartelas aparecem assim que o jogo começar!</div>
+  </div>
+
+  <div class="error-state" id="errorState" style="display:none;">
+    <div class="icon">⚠️</div>
+    <div>Não consegui carregar os dados agora. Tenta recarregar a página em alguns instantes.</div>
+  </div>
+
+  <div class="footer-note">
+    🎀 Regras completas no grupo Petit Lovers · Petit Sabó © 2026
+  </div>
+
+</div>
+
+<script>
+// ====== CONFIGURAÇÃO: cole aqui a URL do Apps Script (App da Web) ======
+const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyQbUKen0UAR6E3dqBfRNiT2cG9Jzwy0A7_rE6d6SkpdBMLCdlDMG2qMoyjpGPnXBo/exec";
+// =========================================================================
+
+const STAMPS = [
+  { key: 'Indicacao', icon: '💌', label: 'Indicação' },
+  { key: 'Frete', icon: '🎀', label: 'Frete grátis' },
+  { key: 'Brinde', icon: '🎁', label: 'Brinde' },
+  { key: 'Aniversario', icon: '🎂', label: 'Aniversário', bonus: true },
+  { key: 'HP', icon: '✨', label: 'HP' },
+  { key: 'Wanderlust', icon: '🌍', label: 'Wanderlust' },
+  { key: 'Stories', icon: '📸', label: 'Stories' },
+];
+
+let people = [];
+
+function normalizePerson(row) {
+  const stamps = {};
+  STAMPS.forEach(s => {
+    const val = String(row[s.key] || '').toUpperCase().trim();
+    stamps[s.key] = val === 'SIM' || val === 'YES' || val === 'TRUE' || val === '1';
+  });
+
+  return {
+    name: row['Nome'] || '(sem nome)',
+    stamps,
+    spent: Number(row['ValorGasto'] || 0) || 0,
+    indicacoesComCompra: Number(row['IndicacoesComCompra'] || 0) || 0,
+  };
+}
+
+function countStamps(person) {
+  return STAMPS.filter(s => person.stamps[s.key]).length;
+}
+
+function getStatus(person) {
+  const n = countStamps(person);
+  const total = STAMPS.length;
+  const spent = person.spent;
+  const indicacoesCompra = person.indicacoesComCompra || 0;
+
+  let madrinha = null;
+  if (spent >= 500) madrinha = { label: 'Madrinha de Honra', cls: 'badge-honra', icon: '💎' };
+  else if (spent >= 300) madrinha = { label: 'Madrinha do Mês', cls: 'badge-madrinha', icon: '🌸' };
+
+  let madrinhaIndicacoes = null;
+  if (indicacoesCompra >= 4) madrinhaIndicacoes = { label: 'Madrinha de Indicações · 25%', cls: 'badge-madrinha' };
+  else if (indicacoesCompra >= 2) madrinhaIndicacoes = { label: 'Madrinha de Indicações · 15%', cls: 'badge-madrinha' };
+
+  return { n, total, spent, madrinha, madrinhaIndicacoes, indicacoesCompra };
+}
+
+function nextStampLabel(person) {
+  const missing = STAMPS.find(s => !person.stamps[s.key]);
+  return missing ? `Falta: ${missing.icon} ${missing.label}` : 'Cartela completa! 🎉';
+}
+
+function prizeMessage(status) {
+  const msgs = [];
+  if (status.n >= 7) msgs.push('🏆 Concorrendo ao Kit Wanderlust completo');
+  else if (status.n >= 6) msgs.push('🎁 Creme + sabonete Botanical Bloom garantidos');
+  else if (status.n >= 4) msgs.push('🎀 Sabonete glicerinado garantido');
+
+  if (status.spent >= 500) msgs.push('💎 Sugar Cream + creme para mãos garantidos');
+  else if (status.spent >= 300) msgs.push('🌸 Sugar Cream Botanical Bloom garantido');
+
+  if (status.madrinhaIndicacoes) msgs.push('💌 ' + status.madrinhaIndicacoes.label + ' na próxima compra');
+
+  return msgs;
+}
+
+function escapeHtml(str) {
+  const div = document.createElement('div');
+  div.textContent = str;
+  return div.innerHTML;
+}
+
+function renderPublic() {
+  const list = document.getElementById('publicList');
+  const empty = document.getElementById('publicEmpty');
+  const query = (document.getElementById('searchInput').value || '').toLowerCase().trim();
+
+  const filtered = people.filter(p => p.name.toLowerCase().includes(query));
+  const sorted = [...filtered].sort((a, b) => {
+    const sa = getStatus(a), sb = getStatus(b);
+    if (sb.n !== sa.n) return sb.n - sa.n;
+    return sb.spent - sa.spent;
+  });
+
+  if (people.length === 0) {
+    list.innerHTML = '';
+    empty.style.display = 'block';
+    return;
+  }
+  empty.style.display = 'none';
+
+  list.innerHTML = sorted.map(person => {
+    const status = getStatus(person);
+    const pct = Math.round((status.n / status.total) * 100);
+    const badges = [];
+    if (status.n >= status.total) badges.push(`<span class="badge-pill badge-completa">🏆 7/7</span>`);
+    if (status.madrinha) badges.push(`<span class="badge-pill ${status.madrinha.cls}">${status.madrinha.icon} ${status.madrinha.label}</span>`);
+    if (status.madrinhaIndicacoes) badges.push(`<span class="badge-pill ${status.madrinhaIndicacoes.cls}">💌 Indicações</span>`);
+
+    const prizeMsgs = prizeMessage(status);
+
+    return `
+      <div class="lover-card ${status.n >= status.total ? 'completed' : ''}">
+        <div class="lover-top">
+          <div class="lover-name">${status.n >= status.total ? '<span class="crown">👑</span>' : ''}${escapeHtml(person.name)}</div>
+          <div class="lover-badges">${badges.join('')}</div>
+        </div>
+        <div class="stamps-row">
+          ${STAMPS.map(s => {
+            const earned = person.stamps[s.key];
+            return `<div class="stamp ${earned ? 'earned' : ''} ${s.bonus ? 'bonus' : ''}" title="${s.label}">${s.icon}</div>`;
+          }).join('')}
+        </div>
+        <div class="progress-track"><div class="progress-fill" style="width:${pct}%"></div></div>
+        <div class="progress-label">
+          <span>${status.n} de ${status.total} selos</span>
+          <span class="next">${nextStampLabel(person)}</span>
+        </div>
+        ${prizeMsgs.length ? `<div class="prize-banner">${prizeMsgs.join(' · ')}</div>` : ''}
+      </div>
+    `;
+  }).join('');
+}
+
+async function loadData() {
+  const errorState = document.getElementById('errorState');
+  errorState.style.display = 'none';
+  try {
+    const res = await fetch(APPS_SCRIPT_URL + (APPS_SCRIPT_URL.includes('?') ? '&' : '?') + 'cachebust=' + Date.now());
+    if (!res.ok) throw new Error('Falha ao buscar dados');
+    const json = await res.json();
+    people = json.map(normalizePerson).filter(p => p.name && p.name !== '(sem nome)');
+    renderPublic();
+    document.getElementById('lastUpdate').textContent =
+      'Atualizado em ' + new Date().toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
+  } catch (e) {
+    console.error(e);
+    if (people.length === 0) {
+      errorState.style.display = 'block';
+    }
+  }
+}
+
+document.getElementById('searchInput').addEventListener('input', renderPublic);
+
+function updateCountdown() {
+  const now = new Date();
+  const bday = new Date('2026-07-19T00:00:00');
+  const end = new Date('2026-08-01T00:00:00');
+  const el = document.getElementById('countdown');
+  if (now < bday) {
+    const days = Math.ceil((bday - now) / 86400000);
+    el.textContent = `🎂 Faltam ${days} dia${days === 1 ? '' : 's'} pro aniversário · Jogo fecha em 31/07`;
+  } else if (now < end) {
+    const days = Math.ceil((end - now) / 86400000);
+    el.textContent = `🎉 Aniversário chegou! Faltam ${days} dia${days === 1 ? '' : 's'} pro fim do jogo`;
+  } else {
+    el.textContent = `🏆 Jogo encerrado · Resultado em 03/08`;
+  }
+}
+updateCountdown();
+
+loadData();
+// Atualiza automaticamente a cada 60 segundos, pra refletir edições da planilha sem precisar recarregar
+setInterval(loadData, 60000);
+</script>
+
+</body>
+</html>
